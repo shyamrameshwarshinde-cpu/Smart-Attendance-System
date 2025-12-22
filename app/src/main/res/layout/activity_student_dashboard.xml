@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:layout_marginStart="200dp"/>
+
+    <TextView
+        android:id="@+id/tvWelcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome, Student"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btnViewClasses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Today’s Classes" />
+
+    <Button
+        android:id="@+id/btnProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Profile"
+        android:layout_marginTop="12dp"/>
+
+    <ListView
+        android:id="@+id/lvClasses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"/>
+</LinearLayout>

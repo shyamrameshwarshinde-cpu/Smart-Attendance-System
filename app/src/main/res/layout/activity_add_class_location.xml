@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvInstructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Move to the classroom and enter the name to save its location"
+        android:textSize="16sp"
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:id="@+id/etClassroomName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Classroom Name"
+        android:inputType="text"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnSaveLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Current Location"
+        android:backgroundTint="@color/black"
+        android:textColor="@android:color/white"
+        android:padding="12dp"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:backgroundTint="@color/black"
+        android:textColor="@android:color/white"
+        android:padding="12dp"/>
+
+</LinearLayout>

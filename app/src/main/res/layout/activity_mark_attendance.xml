@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- REQUIRED BY JAVA -->
+    <TextView
+        android:id="@+id/tvClassInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Class Info"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Optional details (for future use) -->
+    <TextView
+        android:id="@+id/tvClassName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class Name" />
+
+    <TextView
+        android:id="@+id/tvSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subject"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location: Not fetched"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/btnGetLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get My Location"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/btnCaptureSelfie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Capture Live Selfie" />
+
+    <!-- REQUIRED BY JAVA -->
+    <Button
+        android:id="@+id/btnMarkAttendance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mark Attendance"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>

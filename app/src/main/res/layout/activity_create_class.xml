@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/etClassName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Class Name"/>
+
+    <EditText
+        android:id="@+id/etSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Subject"
+        android:layout_marginTop="12dp"/>
+
+
+    <Spinner
+        android:id="@+id/spinnerLocations"
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class Date"
+        android:layout_marginTop="40dp"/>
+
+    <Button
+        android:id="@+id/btnPickDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Date"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class Time"
+        android:layout_marginTop="12dp"/>
+
+    <Button
+        android:id="@+id/btnPickTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Time"/>
+
+    <Button
+        android:id="@+id/btnAddNewLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add New Class Location"
+        android:layout_marginTop="40dp"/>
+
+
+    <Button
+    android:id="@+id/btnCreateClass"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Create Class"
+    android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/tvGpsStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS status"
+        android:textColor="@android:color/holo_blue_dark"/>
+
+</LinearLayout>
