@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class StudentDashboardActivity extends AppCompatActivity {
 
@@ -26,7 +27,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    private ArrayList<ClassItem> classList = new ArrayList<>();
+    private final ArrayList<ClassItem> classList = new ArrayList<>();
     private ArrayAdapter<ClassItem> adapter;
 
     @Override
@@ -34,19 +35,18 @@ public class StudentDashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_dashboard);
 
-        tvWelcome = findViewById(R.id.tvWelcome);
+        tvWelcome     = findViewById(R.id.tvWelcome);
         btnViewClasses = findViewById(R.id.btnViewClasses);
-        btnProfile = findViewById(R.id.btnProfile);
-        btnLogout = findViewById(R.id.btnLogout);
-        lvClasses = findViewById(R.id.lvClasses);
+        btnProfile    = findViewById(R.id.btnProfile);
+        btnLogout     = findViewById(R.id.btnLogout);
+        lvClasses     = findViewById(R.id.lvClasses);
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        db    = FirebaseFirestore.getInstance();
 
-        // 🔐 Safety check
+        // ✅ Safety check — if not logged in, go to login
         if (mAuth.getCurrentUser() == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            goToLogin();
             return;
         }
 
@@ -56,6 +56,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 classList
         );
         lvClasses.setAdapter(adapter);
+
+        // ✅ Show name instead of email
+        loadUserName();
 
         btnViewClasses.setOnClickListener(v -> loadTodaysClasses());
 
@@ -68,7 +71,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> logout());
 
         lvClasses.setOnItemClickListener((parent, view, position, id) -> {
-
             ClassItem selectedClass = classList.get(position);
 
             if (selectedClass == null || selectedClass.classId == null) {
@@ -76,62 +78,71 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 return;
             }
 
-            Intent intent = new Intent(
-                    StudentDashboardActivity.this,
-                    MarkAttendanceActivity.class
-            );
-
-            // ✅ ONLY PASS classId (NO LOCATION HERE)
+            Intent intent = new Intent(this, MarkAttendanceActivity.class);
             intent.putExtra("classId", selectedClass.classId);
             startActivity(intent);
         });
 
-
         loadTodaysClasses();
+    }
 
-        tvWelcome.setText("Welcome, " + mAuth.getCurrentUser().getEmail());
+    // ✅ Load name from Firestore
+    private void loadUserName() {
+        String uid = mAuth.getCurrentUser().getUid();
+        db.collection("users").document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc != null && doc.exists()) {
+                        String name = doc.getString("name");
+                        tvWelcome.setText("Welcome, " +
+                                (name != null ? name : mAuth.getCurrentUser().getEmail()));
+                    }
+                });
     }
 
     private void loadTodaysClasses() {
-
-        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy");
-
+        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
         String today = sdf.format(Calendar.getInstance().getTime());
 
         classList.clear();
+        adapter.notifyDataSetChanged();
 
         db.collection("classes")
                 .whereEqualTo("date", today)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-
                     for (var doc : querySnapshot.getDocuments()) {
-
-                        String classId = doc.getId();
+                        String classId   = doc.getId();
                         String className = doc.getString("className");
-                        String subject = doc.getString("subject");
-
-                        String displayText = className + " (" + subject + ")";
-
-                        classList.add(new ClassItem(classId, displayText));
+                        String subject   = doc.getString("subject");
+                        classList.add(new ClassItem(classId,
+                                className + " (" + subject + ")"));
                     }
 
                     adapter.notifyDataSetChanged();
 
                     if (classList.isEmpty()) {
-                        Toast.makeText(this, "No classes today", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                "No classes today",
+                                Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load classes", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                                "Failed to load classes",
+                                Toast.LENGTH_SHORT).show()
                 );
     }
 
     private void logout() {
         mAuth.signOut();
+        goToLogin();
+    }
 
+    private void goToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

@@ -22,20 +22,24 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
-        etEmail = findViewById(R.id.etEmail);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoRegister = findViewById(R.id.btnCreateAccount);
-
+        // ✅ Auto-login: if already logged in, skip login screen
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        btnLogin.setOnClickListener(v -> {
-//            Toast.makeText(this, "LOGIN CLICKED", Toast.LENGTH_SHORT).show();
-            loginUser();
-        });
+        if (mAuth.getCurrentUser() != null) {
+            redirectUser(mAuth.getCurrentUser().getUid());
+            return; // don't load login UI
+        }
+
+        setContentView(R.layout.activity_login);
+
+        etEmail    = findViewById(R.id.etEmail);
+        etPassword = findViewById(R.id.etPassword);
+        btnLogin   = findViewById(R.id.btnLogin);
+        btnGoRegister = findViewById(R.id.btnCreateAccount);
+
+        btnLogin.setOnClickListener(v -> loginUser());
 
         btnGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegistrationActivity.class))
@@ -43,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String email = etEmail.getText().toString().trim();
+        String email    = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
@@ -51,31 +55,54 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        btnLogin.setEnabled(false);
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
                     redirectUser(uid);
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                .addOnFailureListener(e -> {
+                    btnLogin.setEnabled(true);
+                    Toast.makeText(this,
+                            "Login failed: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void redirectUser(String uid) {
         db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) return;
+                    if (doc == null || !doc.exists()) {
+                        Toast.makeText(this,
+                                "User data not found. Please register again.",
+                                Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();
+                        btnLogin.setEnabled(true);
+                        return;
+                    }
 
                     String role = doc.getString("role");
 
+                    Intent intent;
                     if ("teacher".equals(role)) {
-                        startActivity(new Intent(this, TeacherDashboardActivity.class));
+                        intent = new Intent(this, TeacherDashboardActivity.class);
                     } else {
-                        startActivity(new Intent(this, StudentDashboardActivity.class));
-
+                        intent = new Intent(this, StudentDashboardActivity.class);
                     }
+
+                    // ✅ Clear back stack so user can't go back to login
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                     finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this,
+                            "Failed to fetch role: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    if (btnLogin != null) btnLogin.setEnabled(true);
                 });
     }
 }

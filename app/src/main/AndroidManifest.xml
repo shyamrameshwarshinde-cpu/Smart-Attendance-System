@@ -2,18 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Location -->
+    <!-- ─── Network ─── -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- ─── Location ─── -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-    <!-- Camera -->
+    <!-- ─── Camera ─── -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
-    <!-- Internet -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- ─── Storage (Android 9 and below) ─── -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
-    <!-- Android 13+ media -->
+    <!-- ─── Media (Android 13+) ─── -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
@@ -25,26 +37,69 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Smart_Attendance_System"
+        android:usesCleartextTraffic="false"
         tools:targetApi="31">
 
-        <activity android:name=".MarkAttendanceActivity" android:exported="false" />
-        <activity android:name=".ProfileActivity" android:exported="false" />
-        <activity android:name=".StartAttendanceActivity" android:exported="false" />
-        <activity android:name=".AddClassLocationActivity" android:exported="false" />
-        <activity android:name=".TeacherDashboardActivity" android:exported="false" />
-        <activity android:name=".StudentDashboardActivity" android:exported="false" />
-        <activity android:name=".CreateClassActivity" android:exported="false" />
-
-        <!-- Launcher -->
-        <activity android:name=".LoginActivity" android:exported="true">
+        <!-- ─── Launcher ─── -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegistrationActivity" android:exported="true" />
+        <!-- ─── Auth ─── -->
+        <activity
+            android:name=".RegistrationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait" />
 
+        <!-- ─── Teacher ─── -->
+        <activity
+            android:name=".TeacherDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CreateClassActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".AddClassLocationActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".StartAttendanceActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ─── Student ─── -->
+        <activity
+            android:name=".StudentDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".MarkAttendanceActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ─── Shared ─── -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait" />
+
+        <!-- ─── Fonts ─── -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
