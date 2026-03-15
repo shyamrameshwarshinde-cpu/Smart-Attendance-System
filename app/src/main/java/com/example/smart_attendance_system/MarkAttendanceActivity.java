@@ -426,6 +426,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -463,6 +464,8 @@ public class MarkAttendanceActivity extends AppCompatActivity {
 
     private String classId;
     private double classLat, classLng, classRadius = 10;
+    private FaceNetHelper faceNetHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -492,6 +495,15 @@ public class MarkAttendanceActivity extends AppCompatActivity {
         btnGetLocation.setOnClickListener(v -> requestLocation());
         btnCaptureSelfie.setOnClickListener(v -> openCamera());
         btnMarkAttendance.setOnClickListener(v -> validateDistance());
+
+        try {
+            faceNetHelper = new FaceNetHelper(getAssets());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
     // ================= LOCATION =================
@@ -562,49 +574,85 @@ public class MarkAttendanceActivity extends AppCompatActivity {
     // ================= FACE RECOGNITION =================
     private void compareFaces(Bitmap profile, Bitmap selfie) {
 
-        FaceDetector detector = FaceDetection.getClient(
+        FaceDetectorOptions options =
                 new FaceDetectorOptions.Builder()
                         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-                        .build());
+                        .build();
 
-        detector.process(InputImage.fromBitmap(profile, 0))
-                .addOnSuccessListener(pFaces -> {
-                    if (pFaces.size() != 1) {
-                        Toast.makeText(this, "Invalid profile photo", Toast.LENGTH_SHORT).show();
+        FaceDetector detector = FaceDetection.getClient(options);
+
+        InputImage img1 = InputImage.fromBitmap(profile, 0);
+        InputImage img2 = InputImage.fromBitmap(selfie, 0);
+
+        detector.process(img1)
+                .addOnSuccessListener(profileFaces -> {
+
+                    if (profileFaces.isEmpty()) {
+                        Toast.makeText(this, "No face in profile", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    Bitmap pFace = normalizeFace(cropFace(profile, pFaces.get(0)));
+                    Bitmap croppedProfile =
+                            cropFace(profile, profileFaces.get(0));
 
-                    detector.process(InputImage.fromBitmap(selfie, 0))
-                            .addOnSuccessListener(sFaces -> {
-                                if (sFaces.size() != 1) {
-                                    Toast.makeText(this, "Ensure one clear face", Toast.LENGTH_SHORT).show();
+                    detector.process(img2)
+                            .addOnSuccessListener(selfieFaces -> {
+
+                                if (selfieFaces.isEmpty()) {
+                                    Toast.makeText(this, "No face in selfie", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
 
-                                Bitmap sFace = normalizeFace(cropFace(selfie, sFaces.get(0)));
+                                Bitmap croppedSelfie =
+                                        cropFace(selfie, selfieFaces.get(0));
 
-                                float similarity = calculateSimilarity(pFace, sFace);
+                                runFaceNet(croppedProfile, croppedSelfie);
 
-                                if (similarity >= 0.80f) {
-                                    saveAttendance();
-                                } else {
-                                    Toast.makeText(this, "Face mismatch ❌", Toast.LENGTH_LONG).show();
-                                }
                             });
+
                 });
     }
 
-    private Bitmap cropFace(Bitmap bmp, Face face) {
-        Rect r = face.getBoundingBox();
-        return Bitmap.createBitmap(
-                bmp,
-                Math.max(0, r.left),
-                Math.max(0, r.top),
-                Math.min(r.width(), bmp.getWidth() - r.left),
-                Math.min(r.height(), bmp.getHeight() - r.top)
-        );
+    private void runFaceNet(Bitmap face1, Bitmap face2) {
+
+        if (faceNetHelper == null) return;
+
+        Bitmap resized1 =
+                Bitmap.createScaledBitmap(face1, 112, 112, true);
+
+        Bitmap resized2 =
+                Bitmap.createScaledBitmap(face2, 112, 112, true);
+
+        float[] emb1 = faceNetHelper.getEmbedding(resized1);
+        float[] emb2 = faceNetHelper.getEmbedding(resized2);
+
+        float similarity =
+                faceNetHelper.cosineSimilarity(emb1, emb2);
+
+        Log.d("FACENET", "Similarity = " + similarity);
+
+        if (similarity > 0.75f) {
+            saveAttendance();
+        } else {
+            Toast.makeText(this,
+                    "Face mismatch ❌ Score: " + similarity,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    private Bitmap cropFace(Bitmap bitmap, Face face) {
+
+        Rect bounds = face.getBoundingBox();
+
+        int x = Math.max(bounds.left, 0);
+        int y = Math.max(bounds.top, 0);
+        int width = Math.min(bounds.width(),
+                bitmap.getWidth() - x);
+        int height = Math.min(bounds.height(),
+                bitmap.getHeight() - y);
+
+        return Bitmap.createBitmap(bitmap, x, y, width, height);
     }
 
     private Bitmap normalizeFace(Bitmap face) {

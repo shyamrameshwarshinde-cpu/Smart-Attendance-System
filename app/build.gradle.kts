@@ -65,6 +65,10 @@ dependencies {
     implementation ("com.google.mlkit:face-detection:16.1.5")
 
         implementation ("com.google.android.material:material:1.9.0' // latest stable")
-
+    implementation ("org.tensorflow:tensorflow-lite:2.12.0")
+    implementation ("androidx.gridlayout:gridlayout:1.0.0")
+    implementation ("com.google.android.material:material:1.11.0")
+    implementation ("org.apache.poi:poi:5.2.3")
+    implementation ("org.apache.poi:poi-ooxml:5.2.3")
 
 }

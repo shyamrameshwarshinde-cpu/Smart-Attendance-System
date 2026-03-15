@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -23,8 +25,13 @@ public class StartAttendanceActivity extends AppCompatActivity {
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
+    TextView tvSubject, tvRoom, tvTime;
+
+
 
     List<String> classList = new ArrayList<>();
+    List<DocumentSnapshot> classDocs = new ArrayList<>();
+
     ArrayAdapter<String> adapter;
 
     @Override
@@ -34,7 +41,11 @@ public class StartAttendanceActivity extends AppCompatActivity {
 
         spinnerClass = findViewById(R.id.spinnerClass);
         btnStart = findViewById(R.id.btnStart);
+        spinnerClass = findViewById(R.id.spinnerClass);
 
+        tvSubject = findViewById(R.id.tvSubject);
+        tvRoom = findViewById(R.id.tvRoom);
+        tvTime = findViewById(R.id.tvTime);
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
@@ -49,7 +60,38 @@ public class StartAttendanceActivity extends AppCompatActivity {
         loadTeacherClasses();
 
         btnStart.setOnClickListener(v -> startAttendance());
+
+
+        spinnerClass.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+
+                if(position == 0){
+                    tvSubject.setText("Subject: -");
+                    tvRoom.setText("Room: -");
+                    tvTime.setText("Time: -");
+                    return;
+                }
+
+                DocumentSnapshot doc = classDocs.get(position - 1);
+
+                String subject = doc.getString("subject");
+                String room = doc.getString("roomName");
+                String time = doc.getString("time");
+
+                tvSubject.setText("Subject: " + subject);
+                tvRoom.setText("Room: " + room);
+                tvTime.setText("Time: " + time);
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+
+            }
+        });
     }
+
 
     // 🔹 Load teacher classes
     private void loadTeacherClasses() {
@@ -62,15 +104,21 @@ public class StartAttendanceActivity extends AppCompatActivity {
                 .addOnSuccessListener(query -> {
 
                     classList.clear();
+                    classDocs.clear();
+
                     classList.add("Select Class");
 
-                    for (var doc : query.getDocuments()) {
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+
                         classList.add(doc.getString("className"));
+                        classDocs.add(doc);   // IMPORTANT
                     }
 
                     adapter.notifyDataSetChanged();
                 });
     }
+
+
 
     // 🔹 Start attendance session
     private void startAttendance() {

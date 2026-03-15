@@ -1,55 +1,30 @@
- <LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
+    <!-- Fragment container -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Logout"
-        android:layout_marginTop="20dp"
-        />
+        app:menu="@menu/bottom_menu_teacher"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-
-    <Button
-        android:id="@+id/btnCreateClass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create Class"
-        android:layout_marginTop="12dp"/>
-
-    <Button
-        android:id="@+id/btnstartattendance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Attendance"
-        android:layout_marginTop="16dp"/>
-
-
-    <!--    <Button-->
-    <!--        android:id="@+id/btnSmartAttendance"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Smart Attendance"-->
-    <!--        android:layout_marginTop="12dp"/>-->
-
-    <Button
-        android:id="@+id/btnManualAttendance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Manual Attendance"
-        android:layout_marginTop="12dp"/>
-
-    <Button
-        android:id="@+id/btnExportExcel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Export Excel"
-        android:layout_marginTop="12dp"/>
-
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

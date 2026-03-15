@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F7FB">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- HEADER -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create New Class"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="@color/purple_main"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- FORM CARD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:elevation="4dp">
+
+            <!-- CLASS NAME -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Class Name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etClassName"
+                    android:layout_width="match_parent"
+                    android:fontFamily="@font/poppins_medium"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- SUBJECT -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subject"
+                android:layout_marginTop="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSubject"
+                    android:fontFamily="@font/poppins_medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- LOCATION -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Class Location"
+
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerLocations"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:fontFamily="@font/poppins_medium"
+                android:background="@drawable/bg_input"
+                android:layout_marginTop="6dp"/>
+
+            <!-- DATE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Class Date"
+                android:fontFamily="@font/poppins_semibold"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnPickDate"
+                android:background="@drawable/login_btn_gradient"
+                style="@style/primaryBtn"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Select Date"/>
+
+            <!-- TIME -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Class Time"
+                android:fontFamily="@font/poppins_semibold"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnPickTime"
+                style="@style/primaryBtn"
+                android:background="@drawable/login_btn_gradient"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Select Time"/>
+
+            <!-- ADD LOCATION -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnAddNewLocation"
+                style="@style/secondaryBtn"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Add New Location"
+                android:background="@drawable/login_btn_gradient"
+                android:layout_marginTop="18dp"/>
+
+        </LinearLayout>
+
+        <!-- CREATE BUTTON -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnCreateClass"
+            style="@style/mainActionBtn"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Create Class"
+            android:background="@drawable/bg_create_account_btn"
+            android:layout_marginTop="20dp"/>
+
+        <!-- GPS STATUS -->
+        <TextView
+            android:id="@+id/tvGpsStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="GPS status"
+            android:textColor="@color/purple_main"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

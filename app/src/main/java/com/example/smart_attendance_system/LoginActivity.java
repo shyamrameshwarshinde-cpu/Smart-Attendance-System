@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnGoRegister = findViewById(R.id.btnGoRegister);
+        btnGoRegister = findViewById(R.id.btnCreateAccount);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(new Intent(this, TeacherDashboardActivity.class));
                     } else {
                         startActivity(new Intent(this, StudentDashboardActivity.class));
+
                     }
                     finish();
                 });

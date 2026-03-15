@@ -94,7 +94,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     private void loadTodaysClasses() {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy");
+
         String today = sdf.format(Calendar.getInstance().getTime());
 
         classList.clear();

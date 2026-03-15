@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,62 +25,92 @@ public class AddClassLocationActivity extends AppCompatActivity {
 
     private static final int LOCATION_REQUEST_CODE = 101;
 
-    private EditText etClassroomName;
-    private Button btnSaveLocation,BtnNext;
+    EditText etClassroomName;
+    Button btnGetLocation, btnSaveLocation;
+    TextView tvGpsStatus;
 
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-    private FusedLocationProviderClient fusedLocationClient;
-    private boolean locationSaved = false;
+    FirebaseFirestore db;
+    FirebaseAuth mAuth;
+    FusedLocationProviderClient fusedLocationClient;
+
+    Location currentLocation = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_class_location);
 
-
-
-        etClassroomName = findViewById(R.id.etClassroomName);
+        // UI
+        etClassroomName = findViewById(R.id.etLocationName);
+        btnGetLocation = findViewById(R.id.btnGetLocation);
         btnSaveLocation = findViewById(R.id.btnSaveLocation);
-        BtnNext = findViewById(R.id.btnNext);
+        tvGpsStatus = findViewById(R.id.tvGpsStatus);
 
+        // Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+
+        // GPS
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        btnSaveLocation.setOnClickListener(v -> checkPermissionAndFetchLocation());
-
-        BtnNext.setOnClickListener(v -> {
-            if (!locationSaved) {
-                Toast.makeText(this, "Save location first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // ✅ GO BACK TO CREATE CLASS
-            finish();
+        // Get location
+        btnGetLocation.setOnClickListener(v -> {
+            tvGpsStatus.setText("Fetching location...");
+            checkPermissionAndFetchLocation();
         });
 
-
-
+        // Save location
+        btnSaveLocation.setOnClickListener(v -> saveLocation());
     }
 
-    // 🔹 Permission check
+    // 🔹 Check permission
     private void checkPermissionAndFetchLocation() {
+
         if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_REQUEST_CODE
             );
+
         } else {
             fetchLocation();
         }
     }
 
-    // 🔹 Get GPS location
+    // 🔹 Fetch location
     private void fetchLocation() {
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+
+                    if (location != null) {
+
+                        currentLocation = location;
+
+                        tvGpsStatus.setText(
+                                "Latitude: " + location.getLatitude() +
+                                        "\nLongitude: " + location.getLongitude() +
+                                        "\nAccuracy: " + location.getAccuracy() + " meters"
+                        );
+
+                    } else {
+                        tvGpsStatus.setText("Unable to get location. Turn ON GPS.");
+                    }
+
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this,
+                                "Location error: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    // 🔹 Save location to Firestore
+    private void saveLocation() {
 
         String roomName = etClassroomName.getText().toString().trim();
 
@@ -88,34 +119,22 @@ public class AddClassLocationActivity extends AppCompatActivity {
             return;
         }
 
+        if (currentLocation == null) {
+            Toast.makeText(this, "Get location first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (mAuth.getCurrentUser() == null) {
             Toast.makeText(this, "Teacher not logged in", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(location -> {
-                    if (location != null) {
-                        saveLocationToFirestore(location, roomName);
-                    } else {
-                        Toast.makeText(this, "Turn ON GPS and try again", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Location error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
-    }
-
-    // 🔹 Save to Firestore
-    private void saveLocationToFirestore(Location location, String roomName) {
-
         String teacherId = mAuth.getCurrentUser().getUid();
 
         Map<String, Object> locationMap = new HashMap<>();
         locationMap.put("roomName", roomName);
-        locationMap.put("latitude", location.getLatitude());
-        locationMap.put("longitude", location.getLongitude());
-        locationMap.put("radius", 20); // meters (classroom size)
+        locationMap.put("latitude", currentLocation.getLatitude());
+        locationMap.put("longitude", currentLocation.getLongitude());
 
         db.collection("class_locations")
                 .document(teacherId)
@@ -123,11 +142,18 @@ public class AddClassLocationActivity extends AppCompatActivity {
                 .document(roomName)
                 .set(locationMap)
                 .addOnSuccessListener(unused -> {
-                    locationSaved = true;
-                    Toast.makeText(this, "Classroom location saved", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(this,
+                            "Classroom location saved",
+                            Toast.LENGTH_SHORT).show();
+
+                    finish(); // go back
+
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Firestore error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                                "Firestore error: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -136,14 +162,20 @@ public class AddClassLocationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == LOCATION_REQUEST_CODE
                 && grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
             fetchLocation();
+
         } else {
-            Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(this,
+                    "Location permission required",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 }
