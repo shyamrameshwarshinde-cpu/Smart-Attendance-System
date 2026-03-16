@@ -21,7 +21,8 @@ import java.util.Locale;
 public class StudentDashboardActivity extends AppCompatActivity {
 
     private TextView tvWelcome;
-    private Button btnViewClasses, btnProfile, btnLogout;
+    private Button btnViewClasses, btnProfile;
+    private android.widget.ImageButton btnLogout;
     private ListView lvClasses;
 
     private FirebaseAuth mAuth;

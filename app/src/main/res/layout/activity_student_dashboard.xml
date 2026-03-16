@@ -2,134 +2,94 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#F4F6FB"
-    android:padding="0dp">
+    android:background="#F4F6FB">
 
-    <!-- Top Header Card -->
-    <LinearLayout
+    <!-- HEADER -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#1A237E"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="48dp"
-        android:paddingBottom="32dp">
+        android:layout_height="258dp"
+        android:background="@drawable/dashboard_header"
+        android:padding="20dp">
 
-        <!-- Logout Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginBottom="20dp">
-
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Logout"
-                android:textColor="#1A237E"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08"
-                android:background="@drawable/btn_logout_bg"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:elevation="0dp" />
-        </LinearLayout>
-
-        <!-- Welcome Text -->
         <TextView
             android:id="@+id/tvWelcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/poppins_semibold"
             android:text="Welcome, Student"
-            android:textColor="#FFFFFF"
+            android:textColor="#0B0707"
             android:textSize="26sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.02"
-            android:layout_marginBottom="4dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Here's your dashboard"
-            android:textColor="#9FA8DA"
-            android:textSize="13sp" />
+            android:layout_below="@id/tvWelcome"
+            android:layout_marginTop="6dp"
+            android:text="Ready for today's classes?"
+            android:textColor="#060607"
+            android:textSize="14sp" />
 
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/btnLogout"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/logout_circle_bg"
+            android:src="@android:drawable/ic_lock_power_off"
+            app:tint="#FFFFFF" />
 
-    <!-- Content Area -->
+    </RelativeLayout>
+
+    <!-- CONTENT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="28dp">
+        android:padding="20dp">
 
-        <!-- Section Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="QUICK ACTIONS"
-            android:textColor="#9E9E9E"
-            android:textSize="11sp"
-            android:letterSpacing="0.12"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
-        <!-- View Classes Button -->
         <Button
             android:id="@+id/btnViewClasses"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="55dp"
             android:text="View Today's Classes"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
+            android:textColor="#070505"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:letterSpacing="0.03"
-            android:background="@drawable/btn_primary_bg"
-            android:elevation="4dp"
-            android:layout_marginBottom="12dp" />
+            android:background="@drawable/logout_circle_bg"
+            android:layout_marginBottom="12dp"/>
 
-        <!-- View Profile Button -->
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnProfile"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="55dp"
             android:text="View Profile"
-            android:textColor="#1A237E"
-            android:textSize="15sp"
+            android:textColor="#020204"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:letterSpacing="0.03"
-            android:background="@drawable/btn_outline_bg"
-            android:elevation="0dp"
-            android:layout_marginBottom="28dp" />
+            android:background="@drawable/login_btn_gradient"
+            android:layout_marginBottom="20dp"/>
 
-        <!-- Classes Section Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TODAY'S SCHEDULE"
-            android:textColor="#9E9E9E"
-            android:textSize="11sp"
-            android:letterSpacing="0.12"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Classes List -->
-        <ListView
-            android:id="@+id/lvClasses"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:divider="#E8EAF6"
-            android:dividerHeight="1dp"
-            android:background="#FFFFFF"
-            android:elevation="2dp" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <ListView
+                android:id="@+id/lvClasses"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="#E0E0E0"
+                android:dividerHeight="1dp"
+                android:padding="10dp"/>
+
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 
