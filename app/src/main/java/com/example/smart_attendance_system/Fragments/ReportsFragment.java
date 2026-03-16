@@ -1,117 +1,203 @@
 package com.example.smart_attendance_system.Fragments;
-
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.example.smart_attendance_system.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReportsFragment extends Fragment {
 
-    public ReportsFragment(){}
     Spinner spinnerClass;
-    Button btnGenerateExcel;
+    Button btnGenerateReport;
+
     FirebaseFirestore db;
+
+    List<String> classList = new ArrayList<>();
+    List<String> classIdList = new ArrayList<>();
+
+    public ReportsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         View view = inflater.inflate(R.layout.fragment_reports, container, false);
 
         spinnerClass = view.findViewById(R.id.spinnerClass);
-        btnGenerateExcel = view.findViewById(R.id.btnGenerateReport);
+        btnGenerateReport = view.findViewById(R.id.btnGenerateReport);
 
         db = FirebaseFirestore.getInstance();
 
-//        btnGenerateExcel.setOnClickListener(v -> generateExcel());
+        loadClasses();
+
+        btnGenerateReport.setOnClickListener(v -> generateReport());
 
         return view;
     }
 
-//    private void generateExcel() {
-//
-//        String selectedClass = spinnerClass.getSelectedItem().toString();
-//
-//        db.collection("attendance")
-//                .whereEqualTo("className", selectedClass)
-//                .get()
-//                .addOnSuccessListener(snapshot -> {
-//
-//                    try {
-//
-//                        Workbook workbook = new XSSFWorkbook();
-//                        Sheet sheet = workbook.createSheet("Attendance");
-//
-//                        Row header = sheet.createRow(0);
-//
-//                        header.createCell(0).setCellValue("Roll No");
-//                        header.createCell(1).setCellValue("Student Name");
-//                        header.createCell(2).setCellValue("Class");
-//                        header.createCell(3).setCellValue("Date");
-//                        header.createCell(4).setCellValue("Time");
-//                        header.createCell(5).setCellValue("Status");
-//
-//                        int rowIndex = 1;
-//
-//                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
-//
-//                            Row row = sheet.createRow(rowIndex++);
-//
-//                            row.createCell(0).setCellValue(doc.getString("rollNo"));
-//                            row.createCell(1).setCellValue(doc.getString("studentName"));
-//                            row.createCell(2).setCellValue(doc.getString("className"));
-//                            row.createCell(3).setCellValue(doc.getString("date"));
-//                            row.createCell(4).setCellValue(doc.getString("time"));
-//                            row.createCell(5).setCellValue(doc.getString("status"));
-//                        }
-//
-//                        saveExcel(workbook);
-//
-//                    } catch (Exception e) {
-//                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-//                    }
-//
-//                });
-//    }
-    private void saveExcel(Workbook workbook) {
+    private void loadClasses() {
 
-        try {
+        db.collection("classes")
+                .get()
+                .addOnSuccessListener(snapshot -> {
 
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    classList.clear();
+                    classIdList.clear();
 
-            File file = new File(path, "Attendance_Report.xlsx");
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
 
-            FileOutputStream outputStream = new FileOutputStream(file);
+                        classList.add(doc.getString("className"));
+                        classIdList.add(doc.getId());
+                    }
 
-            workbook.write(outputStream);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            getContext(),
+                            android.R.layout.simple_spinner_item,
+                            classList
+                    );
 
-            outputStream.close();
+                    adapter.setDropDownViewResource(
+                            android.R.layout.simple_spinner_dropdown_item
+                    );
 
-            Toast.makeText(getContext(), "Excel Saved in Downloads", Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-
-            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+                    spinnerClass.setAdapter(adapter);
+                });
     }
-}
+
+    private void generateReport() {
+
+        int position = spinnerClass.getSelectedItemPosition();
+        String selectedClassId = classIdList.get(position);
+        String selectedClassName = classList.get(position);
+
+        db.collection("attendance")
+                .whereEqualTo("classId", selectedClassId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+
+                    try {
+
+                        Workbook workbook = new XSSFWorkbook();
+                        Sheet sheet = workbook.createSheet("Attendance");
+
+                        Row header = sheet.createRow(0);
+
+                        header.createCell(0).setCellValue("Student Name");
+                        header.createCell(1).setCellValue("Class");
+                        header.createCell(2).setCellValue("Date");
+                        header.createCell(3).setCellValue("Time");
+                        header.createCell(4).setCellValue("Latitude");
+                        header.createCell(5).setCellValue("Longitude");
+
+                        final int[] rowIndex = {1};
+
+                        int totalRecords = snapshot.size();
+                        final int[] processedRecords = {0};
+
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+
+                            String studentId = doc.getString("studentId");
+                            String date = doc.getString("date");
+
+                            Double lat = doc.getDouble("lat");
+                            Double lng = doc.getDouble("lng");
+
+                            /* ---- TIMESTAMP FIX (Long → Time) ---- */
+
+                            Long timestampValue = doc.getLong("timestamp");
+
+                            String finalTime = "";
+
+                            if (timestampValue != null) {
+
+                                java.util.Date dateObj = new java.util.Date(timestampValue);
+
+                                java.text.SimpleDateFormat sdf =
+                                        new java.text.SimpleDateFormat("HH:mm:ss");
+
+                                finalTime = sdf.format(dateObj);
+                            }
+
+                            final String timeValue = finalTime;
+
+                            db.collection("students")
+                                    .document(studentId)
+                                    .get()
+                                    .addOnSuccessListener(studentDoc -> {
+
+                                        try {
+
+                                            String studentName =
+                                                    studentDoc.getString("name");
+
+                                            Row row = sheet.createRow(rowIndex[0]++);
+
+                                            row.createCell(0).setCellValue(studentName);
+                                            row.createCell(1).setCellValue(selectedClassName);
+                                            row.createCell(2).setCellValue(date);
+                                            row.createCell(3).setCellValue(timeValue);
+
+                                            if (lat != null)
+                                                row.createCell(4).setCellValue(lat);
+
+                                            if (lng != null)
+                                                row.createCell(5).setCellValue(lng);
+
+                                            processedRecords[0]++;
+
+                                            if (processedRecords[0] == totalRecords) {
+
+                                                File file = new File(
+                                                        Environment.getExternalStoragePublicDirectory(
+                                                                Environment.DIRECTORY_DOWNLOADS),
+                                                        selectedClassName + "_AttendanceReport.xlsx"
+                                                );
+
+                                                FileOutputStream outputStream =
+                                                        new FileOutputStream(file);
+
+                                                workbook.write(outputStream);
+                                                outputStream.close();
+
+                                                Toast.makeText(getContext(),
+                                                        "Report saved in Downloads",
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    });
+
+                        }
+
+                    } catch (Exception e) {
+
+                        Toast.makeText(getContext(),
+                                "Error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                });
+    }}
