@@ -566,7 +566,7 @@ public class MarkAttendanceActivity extends AppCompatActivity {
     }
 
     private String getTodayDate() {
-        return new SimpleDateFormat("d MMMM yyyy",
+        return new SimpleDateFormat("d/M/yyyy",
                 Locale.getDefault()).format(new Date());
     }
 

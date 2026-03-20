@@ -22,8 +22,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ReportsFragment extends Fragment {
 
@@ -100,46 +103,45 @@ public class ReportsFragment extends Fragment {
                         Workbook workbook = new XSSFWorkbook();
                         Sheet sheet = workbook.createSheet("Attendance");
 
+                        // ✅ HEADER
                         Row header = sheet.createRow(0);
-
                         header.createCell(0).setCellValue("Student Name");
-                        header.createCell(1).setCellValue("Class");
-                        header.createCell(2).setCellValue("Date");
-                        header.createCell(3).setCellValue("Time");
-                        header.createCell(4).setCellValue("Latitude");
-                        header.createCell(5).setCellValue("Longitude");
+                        header.createCell(1).setCellValue("Enrollment No");
+                        header.createCell(2).setCellValue("Class");
+                        header.createCell(3).setCellValue("Date");
+                        header.createCell(4).setCellValue("Timestamp");
 
+                        final int total = snapshot.size();
                         final int[] rowIndex = {1};
+                        final int[] completed = {0};
 
-                        int totalRecords = snapshot.size();
-                        final int[] processedRecords = {0};
+                        if (total == 0) {
+                            Toast.makeText(getContext(), "No attendance found", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
 
                             String studentId = doc.getString("studentId");
                             String date = doc.getString("date");
 
-                            Double lat = doc.getDouble("lat");
-                            Double lng = doc.getDouble("lng");
+                            // ✅ FINAL DATE
+                            final String finalDate = date != null ? date : "";
 
-                            /* ---- TIMESTAMP FIX (Long → Time) ---- */
+                            // ✅ FINAL TIME
+                            Long timestampLong = doc.getLong("timestamp");
+                            final String finalTime;
 
-                            Long timestampValue = doc.getLong("timestamp");
-
-                            String finalTime = "";
-
-                            if (timestampValue != null) {
-
-                                java.util.Date dateObj = new java.util.Date(timestampValue);
-
-                                java.text.SimpleDateFormat sdf =
-                                        new java.text.SimpleDateFormat("HH:mm:ss");
-
+                            if (timestampLong != null) {
+                                Date dateObj = new Date(timestampLong);
+                                SimpleDateFormat sdf =
+                                        new SimpleDateFormat("hh:mm a", Locale.getDefault());
                                 finalTime = sdf.format(dateObj);
+                            } else {
+                                finalTime = "";
                             }
 
-                            final String timeValue = finalTime;
-
+                            // 🔥 Fetch student details
                             db.collection("students")
                                     .document(studentId)
                                     .get()
@@ -147,49 +149,40 @@ public class ReportsFragment extends Fragment {
 
                                         try {
 
-                                            String studentName =
-                                                    studentDoc.getString("name");
+                                            String studentName = studentDoc.getString("name");
+                                            String enrollmentNo = studentDoc.getString("enrollment");
 
                                             Row row = sheet.createRow(rowIndex[0]++);
 
-                                            row.createCell(0).setCellValue(studentName);
-                                            row.createCell(1).setCellValue(selectedClassName);
-                                            row.createCell(2).setCellValue(date);
-                                            row.createCell(3).setCellValue(timeValue);
+                                            row.createCell(0).setCellValue(
+                                                    studentName != null ? studentName : "");
 
-                                            if (lat != null)
-                                                row.createCell(4).setCellValue(lat);
+                                            row.createCell(1).setCellValue(
+                                                    enrollmentNo != null ? enrollmentNo : "");
 
-                                            if (lng != null)
-                                                row.createCell(5).setCellValue(lng);
-
-                                            processedRecords[0]++;
-
-                                            if (processedRecords[0] == totalRecords) {
-
-                                                File file = new File(
-                                                        Environment.getExternalStoragePublicDirectory(
-                                                                Environment.DIRECTORY_DOWNLOADS),
-                                                        selectedClassName + "_AttendanceReport.xlsx"
-                                                );
-
-                                                FileOutputStream outputStream =
-                                                        new FileOutputStream(file);
-
-                                                workbook.write(outputStream);
-                                                outputStream.close();
-
-                                                Toast.makeText(getContext(),
-                                                        "Report saved in Downloads",
-                                                        Toast.LENGTH_LONG).show();
-                                            }
+                                            row.createCell(2).setCellValue(selectedClassName);
+                                            row.createCell(3).setCellValue(finalDate);
+                                            row.createCell(4).setCellValue(finalTime);
 
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
 
-                                    });
+                                        // ✅ TRACK COMPLETION (IMPORTANT FIX)
+                                        completed[0]++;
 
+                                        if (completed[0] == total) {
+                                            saveExcel(workbook, selectedClassName);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+
+                                        completed[0]++;
+
+                                        if (completed[0] == total) {
+                                            saveExcel(workbook, selectedClassName);
+                                        }
+                                    });
                         }
 
                     } catch (Exception e) {
@@ -198,6 +191,32 @@ public class ReportsFragment extends Fragment {
                                 "Error: " + e.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
-
                 });
-    }}
+    }
+
+    private void saveExcel(Workbook workbook, String className) {
+
+        try {
+
+            File file = new File(
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS),
+                    className + "_AttendanceReport.xlsx"
+            );
+
+            FileOutputStream outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+            outputStream.close();
+
+            Toast.makeText(getContext(),
+                    "Report saved in Downloads",
+                    Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+
+            Toast.makeText(getContext(),
+                    "Save Error: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+}

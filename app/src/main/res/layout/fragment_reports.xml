@@ -1,29 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:background="#F4F6FB">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Attendance Report"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="20dp"/>
-
-    <Spinner
-        android:id="@+id/spinnerClass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <Button
-        android:id="@+id/btnGenerateReport"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate Excel Report"
-        android:layout_marginTop="20dp"/>
+        android:orientation="vertical">
 
-</LinearLayout>
+        <!-- 🔥 HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@drawable/dashboard_header"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Export Reports"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:fontFamily="@font/poppins_semibold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Generate and download attendance reports"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginTop="6dp"/>
+
+        </LinearLayout>
+
+        <!-- 🔥 CONTENT CARD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:padding="20dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Attendance Report"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:fontFamily="@font/poppins_semibold"
+                android:layout_marginBottom="15dp"/>
+
+            <!-- Spinner Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Class"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="6dp"/>
+
+            <!-- Spinner -->
+            <Spinner
+                android:id="@+id/spinnerClass"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edittext_bg"
+                android:padding="10dp"/>
+
+            <!-- Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnGenerateReport"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Download Excel Report"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/login_btn_gradient"
+                android:layout_marginTop="25dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
